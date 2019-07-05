@@ -593,7 +593,7 @@
 
 		<script type="text/javascript" src="components/vs/require.min.js"> //asta nu mai e loaderul de microsoft</script>
 
-		<script type="text/javascript">			
+		<script type="text/javascript">
 
 			require.config({
 				paths: {
@@ -602,6 +602,8 @@
 					jquery_jgraduate: 'components/method-draw/lib/jgraduate/jquery.jgraduate',
 					jquery_draginput: 'components/method-draw/lib/jquery-draginput',
 					jquery_contextMenu:'components/method-draw/lib/contextmenu/jquery.contextMenu',
+					jquery_hotkeys: 'components/method-draw/lib/js-hotkeys/jquery.hotkeys.min',
+					jquery_mousewheel: 'components/method-draw/lib/mousewheel',
 					vs: './components/vs',
 					method_draw: 'components/method-draw/src/method-draw',
 					touch: 'components/method-draw/lib/touch',
@@ -617,16 +619,15 @@
 					svghistory: 'components/method-draw/src/history',
 					svgselect: 'components/method-draw/src/select',
 					svgpath: 'components/method-draw/src/path',
-					svgfilesaver:'components/method-draw/lib/filesaver'
-					// pathseg: 'components/method-draw/lib/pathseg',
-					// jquery_hotkeys: 'components/method-draw/lib/js-hotkeys/jquery.hotkeys.min',
+					svgfilesaver:'components/method-draw/lib/filesaver',
+					pathseg: 'components/method-draw/lib/pathseg',
+					ext_grid:'components/method-draw/extensions/ext-grid',
 					// dialog: 'components/method-draw/src/dialog',
 					// contextmenu: 'components/method-draw/lib/contextmenu',
 					// jpicker: 'components/method-draw/lib/jgraduate/jpicker.min',
-					// mousewheel: 'components/method-draw/lib/mousewheel',
 					// ext_eyedropper: 'components/method-draw/extensions/ext-eyedropper',
 					// ext_shapes: 'components/method-draw/extensions/ext-shapes',
-					// ext_grid:'components/method-draw/extensions/ext-grid',
+					
 					// requestanimationframe:'components/method-draw/lib/requestanimationframe',
 					// taphold:'components/method-draw/lib/taphold',
 				},
@@ -640,15 +641,27 @@
 					jquery_jgraduate: {
 						deps: ['jquery']
 					},
+					jquery_hotkeys: {
+						deps: ['jquery']
+					},
 					method_draw: {
 						exports: 'methodDraw',
-						deps: ['jquery_ui', 'jquery_jgraduate', 'jquery_draginput', 'jquery_contextMenu', 'touch', 'svgutils', 'svgicons', 'svgcanvas']
+						deps: ['jquery_ui', 'jquery_jgraduate', 'jquery_draginput', 'jquery_contextMenu', 'jquery_hotkeys', 'jquery_mousewheel', 'touch', 'svgutils', 'svgicons', 'svgcanvas']
+					},
+					ext_grid: {
+						deps: ['method_draw']
 					},
 					svgicons: {
 						deps: ['jquery']
 					},
 					svgcanvas: {
-						deps: ['svgdraw', 'svgtransform', 'svgmath', 'svgunits', 'svgsanitize', 'svghistory', 'svgselect', 'svgpath', 'svgfilesaver']
+						deps: ['pathseg', 'svgdraw', 'svgtransform', 'svgmath', 'svgsanitize', 'svghistory', 'svgselect', 'svgpath', 'svgfilesaver']
+					},
+					svgunits: {
+						deps: ['jquery', 'ext_grid']
+					},
+					svgsanitize: {
+						deps: ['jquery']
 					},
 					svgutils: {
 						deps: ['browser']
@@ -659,8 +672,8 @@
 			require([
 				'jquery',
 				'vs/editor/editor.main',
-				'method_draw'
-			], function($, monaco, methodDraw) {
+				'svgunits'
+			], function($, monaco) {
 				$(function() {
 					var editor = monaco.editor.create(document.getElementById('container'), {
 						value: [
