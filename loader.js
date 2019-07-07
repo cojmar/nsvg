@@ -1,10 +1,12 @@
 require.config({
     paths: {
+        app_main:'components/app/main',
         jquery: 'components/method-draw/lib/jquery',
-        jquery_ui: 'components/method-draw/lib/jquery-ui/jquery-ui-1.8.17.custom.min',
+        jquery_migrate: 'components/method-draw/lib/jquery-migrate-1.4.1',
+        jquery_ui: 'components/method-draw/lib/jquery-ui/jquery-ui-1.8.17.min',
         jquery_jgraduate: 'components/method-draw/lib/jgraduate/jquery.jgraduate',
         jquery_draginput: 'components/method-draw/lib/jquery-draginput',
-        jquery_contextMenu:'components/method-draw/lib/contextmenu/jquery.contextMenu',
+        jquery_contextmenu:'components/method-draw/lib/contextmenu/jquery.contextMenu',
         jquery_hotkeys: 'components/method-draw/lib/js-hotkeys/jquery.hotkeys.min',
         jquery_mousewheel: 'components/method-draw/lib/mousewheel',
         vs: './components/vs',
@@ -25,16 +27,19 @@ require.config({
         svgfilesaver:'components/method-draw/lib/filesaver',
         pathseg: 'components/method-draw/lib/pathseg',
         ext_grid:'components/method-draw/extensions/ext-grid',
-        ext_shapes: 'components/method-draw/extensions/ext-shapes',        
+        ext_shapes: 'components/method-draw/extensions/ext-shapes',
         dialog: 'components/method-draw/src/dialog',
         contextmenu: 'components/method-draw/lib/contextmenu',
         taphold:'components/method-draw/lib/taphold',
         jpicker: 'components/method-draw/lib/jgraduate/jpicker.min',
-        ext_eyedropper: 'components/method-draw/extensions/ext-eyedropper',        
-        requestanimationframe:'components/method-draw/lib/requestanimationframe'        
+        ext_eyedropper: 'components/method-draw/extensions/ext-eyedropper',
+        requestanimationframe:'components/method-draw/lib/requestanimationframe'
     },
     shim: {
         jquery_ui: {
+            deps: ['jquery_migrate']
+        },
+        jquery_migrate: {
             deps: ['jquery']
         },
         jquery_draginput: {
@@ -46,25 +51,28 @@ require.config({
         jquery_hotkeys: {
             deps: ['jquery']
         },
-        jquery_mousewheel:{
+        jquery_mousewheel: {
+            deps: ['jquery']
+        },
+        jquery_contextmenu: {
             deps: ['jquery']
         },
         method_draw: {
             exports: 'methodDraw',
             deps: [
                 'jquery_ui',
-                'jquery_jgraduate', 
-                'jquery_draginput', 
-                'jquery_contextMenu', 
-                'jquery_hotkeys', 
-                'jquery_mousewheel', 
-                'touch', 
-                'svgutils', 
-                'svgicons', 
+                'jquery_jgraduate',
+                'jquery_draginput',
+                'jquery_contextmenu',
+                'jquery_hotkeys',
+                'jquery_mousewheel',
+                'touch',
+                'svgutils',
+                'svgicons',
                 'svgcanvas',
                 'dialog',
                 'taphold',
-                'requestanimationframe'                
+                'requestanimationframe'
             ]
         },  
         ext_eyedropper:{
@@ -83,7 +91,7 @@ require.config({
             deps: ['jquery']
         },
         dialog: {
-            deps: ['jquery']
+            deps: ['jquery_ui']
         },
         contextmenu: {
             deps: ['method_draw']
@@ -95,7 +103,7 @@ require.config({
             deps: ['pathseg', 'svgdraw', 'svgtransform', 'svgmath', 'svgsanitize', 'svghistory', 'svgselect', 'svgpath', 'svgfilesaver']
         },
         svgunits: {
-            deps: ['jquery', 'ext_grid','ext_shapes','contextmenu','ext_eyedropper']
+            deps: ['jquery', 'ext_grid', 'ext_shapes', 'ext_eyedropper', 'contextmenu']
         },
         svgsanitize: {
             deps: ['jquery']
@@ -109,36 +117,10 @@ require.config({
 require([
     'jquery',
     'vs/editor/editor.main',
-    'svgunits'    
-], function($, monaco) {
+    'app_main',
+    'svgunits'
+], function($, monaco, app_main) {
     $(function() {
-        var editor = monaco.editor.create(document.getElementById('container'), {
-            value: [
-                'function x() {',
-                '\tconsole.log("Hello world!");',
-                '}'
-            ].join('\n'),
-            theme: 'vs-dark',
-            scrollbar: {
-                useShadows: false,
-                verticalHasArrows: true,
-                horizontalHasArrows: true,
-                verticalScrollbarSize: 17,
-                horizontalScrollbarSize: 17,
-                arrowSize: 30
-            },
-            language: 'javascript',
-            scrollBeyondLastColumn: 0,
-            scrollBeyondLastLine: false,
-            showFoldingControls: 'always',
-            renderWhitespace: 'all',
-            renderControlCharacters: true
-        });
-
-        $(window).on('resize', function() {
-            editor.layout();
-            //editor.layout({width:$(window).width(),height:$(window).height()});            
-        })
+        app_main.init();
     });
-  
 });
