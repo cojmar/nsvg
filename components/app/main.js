@@ -9,11 +9,20 @@
 
     var obj = {       
         call_canvas_change:true,
-        on_canvas_change:function(){
+        timeout_canvas_change:false,
+        on_canvas_change:function(a,b,c){
             if(!obj.call_canvas_change) return false;
-            obj.call_svg_editor_change = false;
-            obj.editor_svg.setValue(methodDraw.canvas.getSvgString()); 
-            obj.call_svg_editor_change = true;            
+            /*
+            console.log(a);
+            console.log(b);
+            console.log(c);
+            */
+            if(obj.timeout_canvas_change) clearTimeout(obj.timeout_canvas_change);
+            obj.timeout_canvas_change = setTimeout(function(){
+                obj.call_svg_editor_change = false;
+                obj.editor_svg.setValue(methodDraw.canvas.getSvgString()); 
+                obj.call_svg_editor_change = true;            
+            },100)            
             return obj;
         },
         call_svg_editor_change:true,
@@ -39,7 +48,9 @@
             }                            
         },        
         init_method_draw:function(){
-            methodDraw.canvas.bind('changed',obj.on_canvas_change);            
+            methodDraw.canvas.bind('changed',obj.on_canvas_change);     
+            //methodDraw.canvas.bind('saved',obj.on_canvas_change);     
+                   
             return obj;         
         },
         init_monaco:function(){
@@ -62,7 +73,7 @@
                     //wrappingIndent: "indent",                    
                     language: 'html',
                     scrollBeyondLastColumn: 0,
-                    scrollBeyondLastLine: false,
+                    scrollBeyondLastLine: true,
                     //showFoldingControls: 'always',
                     //renderWhitespace: 'all',
                     //renderControlCharacters: true
@@ -87,10 +98,10 @@
                     },
                     language: 'javascript',
                     scrollBeyondLastColumn: 0,
-                    scrollBeyondLastLine: false,
-                    showFoldingControls: 'always',
-                    renderWhitespace: 'all',
-                    renderControlCharacters: true
+                    scrollBeyondLastLine: true,
+                    //showFoldingControls: 'always',
+                    //renderWhitespace: 'all',
+                    //renderControlCharacters: true
                 });
                 obj.editor_code_el.hide();
             }
