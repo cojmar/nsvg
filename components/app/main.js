@@ -46,6 +46,7 @@
             if (typeof obj.editor_code !== 'undefined') {
                 obj.editor_code.layout();
             }                            
+            $('#svg_editor').css('width','100%');
         },        
         init_method_draw:function(){
             methodDraw.canvas.bind('changed',obj.on_canvas_change);     
@@ -114,7 +115,7 @@
             $('#svg_editor').resizable({
                 handles: 's',
                 stop: function(event, ui) {
-                    obj.editors_layout();
+                    obj.editors_layout();                  
                 }
                 });            
             return obj;
