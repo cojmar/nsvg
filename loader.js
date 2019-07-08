@@ -120,6 +120,7 @@ require([
     'app_main',
     'svgunits'
 ], function($, monaco, app_main) {
+    $(methodDraw.init);
     $(function() {
         app_main.init();
     });

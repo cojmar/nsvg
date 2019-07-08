@@ -4098,7 +4098,6 @@
   }(jQuery);
   
   // Run init once DOM is loaded
-  $(methodDraw.init);
-  
+  //$(methodDraw.init);  
 
 })();
