@@ -92,6 +92,7 @@
             if (obj.editor_code_el.length > 0) {
                     obj.editor_code = monaco.editor.create(obj.editor_code_el.get(0), {
                     value: [
+                        '// DEMO code - Draw a Circle, Line or Rectangle and press Run',
                         'var svg1 = document.getElementById("svg_1");',
                         'if(svg1){',
                         '    var possible_props = ["x1","x","cx"];',
