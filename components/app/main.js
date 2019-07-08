@@ -10,7 +10,7 @@
     var obj = {       
         call_canvas_change:true,
         timeout_canvas_change:false,
-        editor_height:$('#svg_editor').height(),
+        editor_height:$(window).height(),//$('#svg_editor').height(),
         on_canvas_change:function(){
             if(!obj.call_canvas_change) return false;        
             if(obj.timeout_canvas_change) clearTimeout(obj.timeout_canvas_change);
@@ -154,7 +154,7 @@
                 var iframe = document.getElementById('preview_frame');
                 iframe = iframe.contentWindow || ( iframe.contentDocument.document || iframe.contentDocument);
                 iframe.document.open();
-                iframe.document.write('<center>'+obj.compiled+'</center><br><textarea style="width:100%;height:100%;" readonly=readonly>'+obj.compiled+'</textarea>');
+                iframe.document.write('<center>'+obj.compiled+'</center><br><textarea style="width:100%;height:99%;" readonly=readonly>'+obj.compiled+'</textarea>');
                 iframe.document.close();  
                 obj.editors_layout();  
             });            
@@ -186,9 +186,14 @@
             });
         },
         restore_editor:function(){
-            $('#svg_editor').stop().animate({'height':obj.editor_height+'px'},function(){
-                obj.editors_layout();
-                obj.editor_state='normal';
+            $('#svg_editor').stop().animate({'height':obj.editor_height+'px'},{
+                step:function(){
+                    obj.editors_layout();
+                },
+                complete:function(){
+                    obj.editors_layout();
+                    obj.editor_state= 'normal';
+                },
             });
         },        
         toggle_editor:function(){
@@ -221,12 +226,19 @@
             return obj;
         },
         init:function(){
-            window.obj = obj;//Temporary used for debugging, remove this line in production
-            return obj.init_monaco()
+            window.obj = obj;//Temporary used for debugging, remove this line in production            
+            obj.init_monaco()
             .init_tabs()
             .init_tab_bar()
             .init_method_draw()
-            .on_canvas_change();
+            .on_canvas_change();            
+            $('#loader').hide(1,function(){                
+                $('#main_container').show(500,function(){
+                    obj.editor_height =400;
+                    obj.restore_editor();                    
+                });
+            });
+            
         }
     }
 
