@@ -46,6 +46,7 @@
         },        
         compiled:false,
         build:function(){
+            obj.on_canvas_change();
             obj.compiled = [  
                 '<center>',
                 //obj.editor_svg.getValue(),
