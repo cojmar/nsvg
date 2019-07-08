@@ -58,7 +58,8 @@
             return obj;
         },        
         init_method_draw:function(){
-            methodDraw.canvas.bind('changed',obj.on_canvas_change);
+            //methodDraw.canvas.bind('changed',obj.on_canvas_change);
+            window.methodDraw.onChange = obj.on_canvas_change;
             return obj;         
         },
         init_monaco:function(){

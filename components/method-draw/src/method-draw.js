@@ -539,6 +539,7 @@
           selectedElement: selectedElement,
           multiselected: multiselected
         });
+        if(typeof window.methodDraw.onChange === 'function') window.methodDraw.onChange();
       };
     
       // Call when part of element is in process of changing, generally
@@ -569,6 +570,7 @@
         svgCanvas.runExtensions("elementTransition", {
           elems: elems
         });
+        if(typeof window.methodDraw.onChange === 'function') window.methodDraw.onChange();
       };
     
       // called when any element has changed
@@ -614,6 +616,7 @@
         svgCanvas.runExtensions("elementChanged", {
           elems: elems
         });
+        if(typeof window.methodDraw.onChange === 'function') window.methodDraw.onChange();
       };
       
       var zoomChanged = function(window, bbox, autoCenter) {
