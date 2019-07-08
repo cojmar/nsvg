@@ -10,13 +10,50 @@
     var obj = {       
         call_canvas_change:true,
         timeout_canvas_change:false,
-        editor_height:$(window).height(),//$('#svg_editor').height(),
+        editor_height:$(window).height(),
+        editor_action:function (editor,action){
+            //console.log(action);
+            var actons = editor.getActions();
+            for (var act in actons){
+                var editor_action = actons[act];                        
+                //if (act == 38)                            
+                //console.log(editor_action);
+                
+                if (editor_action.label == action){
+                    editor_action.run();
+                }
+            }
+        },
+        parse_svg_string:function(data){
+            var tmp_data=data.split('<![CDATA[');
+            var ret = {
+                cdata:false,
+                svg:data
+            };
+            if (tmp_data[1]){
+                ret.svg = tmp_data[0];                
+                tmp_data = tmp_data[1].split(']]>');
+                ret.cdata =tmp_data[0];
+                ret.svg += tmp_data[1];                
+                if (ret.cdata.substr(0,1)=='\r' || ret.cdata.substr(0,1)=='\n'){                    
+                    ret.cdata = ret.cdata.substr(2,ret.cdata.length);
+                }
+            }
+            return ret;            
+        },
         on_canvas_change:function(){
             if(!obj.call_canvas_change) return false;        
             if(obj.timeout_canvas_change) clearTimeout(obj.timeout_canvas_change);
             obj.timeout_canvas_change = setTimeout(function(){
+                var svg_data = obj.parse_svg_string(methodDraw.canvas.getSvgString());                
                 obj.call_svg_editor_change = false;
-                obj.editor_svg.setValue(methodDraw.canvas.getSvgString()); 
+                obj.editor_svg.setValue(svg_data.svg);
+                if(svg_data.cdata){
+                    methodDraw.loadFromString(svg_data.svg);
+                    methodDraw.updateCanvas();
+                    obj.editor_code.setValue(svg_data.cdata);
+                    obj.editor_action(obj.editor_code,'Format Document');
+                }
                 obj.call_svg_editor_change = true;            
             },100)            
             return obj;
