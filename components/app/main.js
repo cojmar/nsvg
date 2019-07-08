@@ -192,7 +192,7 @@
                 var iframe = document.getElementById('preview_frame');
                 iframe = iframe.contentWindow || ( iframe.contentDocument.document || iframe.contentDocument);
                 iframe.document.open();
-                iframe.document.write('<center>'+obj.compiled+'</center><br><textarea style="width:100%;height:99%;" readonly=readonly>'+obj.compiled+'</textarea>');
+                iframe.document.write('<center>'+obj.compiled+'</center>');
                 iframe.document.close();  
                 obj.editors_layout();  
             });            
@@ -270,11 +270,12 @@
             .init_tab_bar()
             .init_method_draw()
             .on_canvas_change();            
-            $('#loader').hide(1,function(){                
-                $('#main_container').show(500,function(){
+            $('#loader').slideUp(500,function(){                
+                $('#main_container').slideDown(350,function(){
                     obj.editor_height =400;
-                    obj.restore_editor();                    
+                    obj.restore_editor();   
                 });
+                     
             });
             
         }
