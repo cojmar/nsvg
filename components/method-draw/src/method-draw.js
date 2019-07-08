@@ -4022,9 +4022,11 @@
       if(success) {
         callback(true);
       } else {
+        /*
         $.alert(uiStrings.notification.errorLoadingSVG, function() {
           callback(false);
         });
+        */
       }
     }
     
