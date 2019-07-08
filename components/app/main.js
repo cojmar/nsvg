@@ -47,14 +47,13 @@
         compiled:false,
         build:function(){
             obj.on_canvas_change();
-            obj.compiled = [  
-                '<center>',
-                //obj.editor_svg.getValue(),
-                methodDraw.canvas.getSvgString(),
-                '</center>',
-                '<script>',
-                obj.editor_code.getValue(),
-                '</script>',                
+            var temp_svg = methodDraw.canvas.getSvgString();
+            obj.compiled = [                  
+                temp_svg.substr(0,temp_svg.length-6),
+                '<script type="text/javascript"><![CDATA[',
+                    obj.editor_code.getValue(),
+                ']]></script>',                
+                '</svg>'
             ].join('\n');
             return obj;
         },        
@@ -155,7 +154,7 @@
                 var iframe = document.getElementById('preview_frame');
                 iframe = iframe.contentWindow || ( iframe.contentDocument.document || iframe.contentDocument);
                 iframe.document.open();
-                iframe.document.write(obj.compiled);
+                iframe.document.write('<center>'+obj.compiled+'</center><br><textarea style="width:100%;height:100%;" readonly=readonly>'+obj.compiled+'</textarea>');
                 iframe.document.close();  
                 obj.editors_layout();  
             });            
