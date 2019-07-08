@@ -10,13 +10,9 @@
     var obj = {       
         call_canvas_change:true,
         timeout_canvas_change:false,
-        on_canvas_change:function(a,b,c){
-            if(!obj.call_canvas_change) return false;
-            /*
-            console.log(a);
-            console.log(b);
-            console.log(c);
-            */
+        editor_height:$('#svg_editor').height(),
+        on_canvas_change:function(){
+            if(!obj.call_canvas_change) return false;        
             if(obj.timeout_canvas_change) clearTimeout(obj.timeout_canvas_change);
             obj.timeout_canvas_change = setTimeout(function(){
                 obj.call_svg_editor_change = false;
@@ -48,10 +44,21 @@
             }                            
             $('#svg_editor').css('width','100%');
         },        
+        compiled:false,
+        build:function(){
+            obj.compiled = [  
+                '<center>',
+                //obj.editor_svg.getValue(),
+                methodDraw.canvas.getSvgString(),
+                '</center>',
+                '<script>',
+                obj.editor_code.getValue(),
+                '</script>',                
+            ].join('\n');
+            return obj;
+        },        
         init_method_draw:function(){
-            methodDraw.canvas.bind('changed',obj.on_canvas_change);     
-            //methodDraw.canvas.bind('saved',obj.on_canvas_change);     
-                   
+            methodDraw.canvas.bind('changed',obj.on_canvas_change);
             return obj;         
         },
         init_monaco:function(){
@@ -84,9 +91,19 @@
             if (obj.editor_code_el.length > 0) {
                     obj.editor_code = monaco.editor.create(obj.editor_code_el.get(0), {
                     value: [
-                        'function x() {',
-                        '\tconsole.log("Hello world!");',
-                        '}'
+                        'var svg1 = document.getElementById("svg_1");',
+                        'if(svg1){',
+                        '    var x1 = parseFloat(svg1.getAttribute("x1"));',
+                        '    var end_x1 = x1 + 100;',
+                        '    var timmer = setInterval(function(){',
+                        '        x1+=0.5;',
+                        '        if (x1 >= end_x1){',
+                        '            clearInterval(timmer);',
+                        '            return true;',
+                        '        }',
+                        '        svg1.setAttribute("x1",x1);',
+                        '    },10);',
+                        '}',
                     ].join('\n'),
                     theme: 'vs-dark',
                     scrollbar: {
@@ -115,16 +132,39 @@
             $('#svg_editor').resizable({
                 handles: 's',
                 stop: function(event, ui) {
+                    obj.editor_height = $(this).height();
                     obj.editors_layout();                  
                 }
             });            
             return obj;
         },
+        show_preview:function(){            
+            obj.build();
+            $('#svg_editor').animate({'height':'0px'},300,function(){
+                $('#run_code').html('<iframe id="preview_frame" style="width:100%;height:100%;border:none;" />');
+                var iframe = document.getElementById('preview_frame');
+                iframe = iframe.contentWindow || ( iframe.contentDocument.document || iframe.contentDocument);
+                iframe.document.open();
+                iframe.document.write(obj.compiled);
+                iframe.document.close();  
+                obj.editors_layout();  
+            });            
+            return obj;
+        },        
         show_tab:function(tab){
+            $('#run_code').html('');
             $('.vs_button').removeClass('active');  
             $(".vs_button[data-tab='" + tab + "']").addClass('active');
             $('.vs_editor').hide();
-            $('#'+tab).show();
+            $('#'+tab).show();            
+            if(tab ==='run_code'){
+                obj.show_preview();
+            }
+            else {
+                $('#svg_editor').animate({'height':obj.editor_height+'px'},300,function(){
+                    obj.editors_layout();
+                });
+            }
             obj.editors_layout();
         },
         init_tabs:function() {
@@ -145,6 +185,7 @@
 
     return {
         init:obj.init,
-        layout:obj.editors_layout
+        layout:obj.editors_layout,
+        compiled:obj.compiled
     }
 }));
