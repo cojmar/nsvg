@@ -103,8 +103,8 @@
                     //showFoldingControls: 'always',
                     //renderWhitespace: 'all',
                     //renderControlCharacters: true
-                });
-                obj.editor_code_el.hide();
+                });                
+                obj.show_tab('editor_code')
             }
             $(window).on('resize', function(){
                 obj.editors_layout();
@@ -117,23 +117,29 @@
                 stop: function(event, ui) {
                     obj.editors_layout();                  
                 }
-                });            
-            return obj;
-        },
-        init_tabs:function() {
-            $('.vs_button').on('click',function(){
-                $('.vs_button').removeClass('active');  
-                $(this).addClass('active');
-                $('.vs_editor').hide();
-                $('#'+$(this).data('editor')).show();
-                obj.editors_layout();
             });            
             return obj;
         },
-        init:function(){
-            obj.init_monaco().init_tabs().init_tab_bar().init_method_draw().on_canvas_change();
-            window.obj = obj;
+        show_tab:function(tab){
+            $('.vs_button').removeClass('active');  
+            $(".vs_button[data-tab='" + tab + "']").addClass('active');
+            $('.vs_editor').hide();
+            $('#'+tab).show();
+            obj.editors_layout();
+        },
+        init_tabs:function() {
+            $('.vs_button').on('click',function(){
+                obj.show_tab($(this).data('tab'));
+            });
             return obj;
+        },
+        init:function(){
+            window.obj = obj;//Temporary used for debugging, remove this line in production
+            return obj.init_monaco()
+            .init_tabs()
+            .init_tab_bar()
+            .init_method_draw()
+            .on_canvas_change();
         }
     }
 

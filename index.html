@@ -78,6 +78,7 @@
 			.vs_editor {
 				height: calc(100% - 37px);
 				position:relative;
+				box-shadow: #000000 0 6px 6px -6px inset;
 			}
 
 			.monaco-editor::before {
@@ -655,12 +656,16 @@
 
 			<div id="footer">
 				<div id="vs_menu" >
-					<div class="vs_button active" data-editor="editor_svg">SVG</div>
-					<div class="vs_button" data-editor="editor_code">Code</div>
+					<div class="vs_button" data-tab="editor_svg">SVG</div>
+					<div class="vs_button" data-tab="editor_code">Code</div>
+					<div class="vs_button" data-tab="run_code">Run</div>					
 					<br clear="all">
 				</div>
 				<div id="editor_svg" class="vs_editor"></div>
 				<div id="editor_code" class="vs_editor"></div>
+				<div id="run_code" class="vs_editor">
+					OPA
+				</div>
 			</div>
 		</div>
 
