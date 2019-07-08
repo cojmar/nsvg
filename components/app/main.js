@@ -150,7 +150,7 @@
                 obj.editors_layout();  
             });            
             return obj;
-        },        
+        },
         show_tab:function(tab){
             $('#run_code').html('');
             $('.vs_button').removeClass('active');  
@@ -159,17 +159,55 @@
             $('#'+tab).show();            
             if(tab ==='run_code'){
                 obj.show_preview();
-            }
-            else {
-                $('#svg_editor').animate({'height':obj.editor_height+'px'},300,function(){
-                    obj.editors_layout();
-                });
+            }else{
+                if(obj.editor_state==='normal')obj.restore_editor();                
             }
             obj.editors_layout();
         },
+        editor_state:'normal',
+        maximize_editor:function(){
+            $('#svg_editor').stop().animate({'height':0+'px'},{
+                step:function(){
+                    obj.editors_layout();
+                },
+                complete:function(){
+                    obj.editors_layout();
+                    obj.editor_state= 'maximized';
+                },
+            });
+        },
+        restore_editor:function(){
+            $('#svg_editor').stop().animate({'height':obj.editor_height+'px'},function(){
+                obj.editors_layout();
+                obj.editor_state='normal';
+            });
+        },        
+        toggle_editor:function(){
+            var h = $('#svg_editor').height();
+            if (h!==0){
+                obj.maximize_editor();
+            }else{
+                obj.restore_editor();
+            }    
+        },
         init_tabs:function() {
             $('.vs_button').on('click',function(){
-                obj.show_tab($(this).data('tab'));
+                obj.clicked = 1;
+                var tab = $(this).data('tab');
+                setTimeout(function(){                    
+                    if (obj.clicked === 1){
+                         obj.show_tab(tab);
+                    }
+                },100)
+            }).on('dblclick',function(){
+                obj.clicked += 1;
+                var tab = $(this).data('tab');
+                if (tab==='run_code'){
+                    obj.show_preview();
+                }else{
+                    obj.toggle_editor();
+                }
+                           
             });
             return obj;
         },
