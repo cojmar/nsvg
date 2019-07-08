@@ -27,14 +27,6 @@
             if(!obj.call_svg_editor_change) return false;
             if(obj.timeout_svg_editor_change) clearTimeout(obj.timeout_svg_editor_change);
             obj.timeout_svg_editor_change = setTimeout(function(){
-                let decorations = obj.editor_svg.getModel().getAllDecorations();
-                let error = decorations.filter(function isError(decorations){
-                    return decorations.options.className === "redsquiggly";
-                }).map( e => e);
-                
-                console.log(error)
-                
-
                 obj.call_canvas_change = false;
                 methodDraw.loadFromString(obj.editor_svg.getValue());
                 methodDraw.updateCanvas();
