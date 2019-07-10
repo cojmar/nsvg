@@ -193,6 +193,7 @@
                 iframe = iframe.contentWindow || ( iframe.contentDocument.document || iframe.contentDocument);
                 iframe.document.open();
                 iframe.document.write('<center>'+obj.compiled+'</center>');
+                iframe.document.write('<br><div style="color:#cccccc;">COMPILED<hr style="border: 1px solid #cccccc;"><textarea readonly="readonly" style="color:#cccccc;width:100%;height:100%;border:none;background:transparent;outline: none;resize:none;" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">'+obj.compiled+'</textarea>');
                 iframe.document.close();  
                 obj.editors_layout();  
             });            
