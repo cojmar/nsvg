@@ -86,21 +86,28 @@
                     var el_string = methodDraw.canvas.svgToString(el);
                     var matches = obj.editor_svg.model.findMatches(el_string);                
                     if(matches[0]){
-                        var position = matches[0].range;
+                        var position = matches[0].range;                        
                         delta_decorations.push({ range: new monaco.Range(position.startLineNumber,position.startColumn,position.endLineNumber,position.endColumn), options: { inlineClassName: 'selected_element' }});                         
                     }
                 }
+                if (position){
+                    obj.editor_svg.setPosition({column: position.startColumn, lineNumber: position.startLineNumber});
+                    obj.editor_svg.revealLineInCenter(position.startLineNumber);
+                }
                 obj.delta_decorations = obj.editor_svg.deltaDecorations([],delta_decorations);   
-            }
-            else{
-                //obj.delta_decorations = [];
-            }
+            }            
             return obj;
         },
         on_select:function(data){
             if (!obj.delta_slob) obj.delta_slob = obj.editor_svg.deltaDecorations([],[]);            
             if (data) obj.method_draw_selection = data;    
-            obj.highlight_method_draw_selection();                  
+            if (obj.method_draw_selection && obj.method_draw_selection.selectedElement){ 
+                var el_exists = false;               
+                if (obj.editor_svg.model.findMatches('id="'+obj.method_draw_selection.selectedElement.id+'"').length > 0) el_exists=true;
+                if (obj.editor_svg.model.findMatches("id='"+obj.method_draw_selection.selectedElement.id+"'").length > 0) el_exists=true;
+                if (!el_exists) obj.on_canvas_change();
+            }
+            obj.highlight_method_draw_selection();
             return obj;
         },
         on_open:function(data){
