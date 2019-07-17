@@ -72,7 +72,7 @@
                 methodDraw.loadFromString(obj.editor_svg.getValue());
                 methodDraw.updateCanvas();
                 obj.call_canvas_change = true;
-            },1000);
+            },100);
             
             return obj;
         },
@@ -98,8 +98,11 @@
                     var monaco_text = obj.editor_svg.getValue();
                     for (var el of obj.method_draw_selection.elements){                                      
                         var pattern_2 = '(<\/?\\w*(?:(?:(?:\\s*(?:".*"|\'.*\'|[^\'"<\\s]?))?)+\\s*|\\s*)\\sid\\s*=\\s*["|\']?' + el.id +'["|\']?(?:(?:(?:\\s*(?:".*"|\'.*\'|[^\'">\\s]?))?)+\\s*|\\s*)\\w*\/?>)';                        
-                        var pattern_1 = '(<g\\w?(?:(?:(?:\\s*(?:".*"|\'.*\'|[^\'"<\\s]?))?)+\\s*|\\s*)\\sid\\s*=\\s*["|\']?' + el.id +'["|\']?(?:(?:(?:\\s*(?:".*"|\'.*\'|[^\'">\\s]?))?)+\\s*|\\s*)\\w*>)[\\S\\s]+?<\/g>';                        
-                        var match = obj.find_match(pattern_1,monaco_text);
+                        var pattern_1 = '(<g\\w?(?:(?:(?:\\s*(?:".*"|\'.*\'|[^\'"<\\s]?))?)+\\s*|\\s*)\\sid\\s*=\\s*["|\']?' + el.id +'["|\']?(?:(?:(?:\\s*(?:".*"|\'.*\'|[^\'">\\s]?))?)+\\s*|\\s*)\\w*>)[\\S\\s]+?<\/g>';
+                        var el_string = methodDraw.canvas.svgToString(el);
+                        var match = obj.editor_svg.getModel().findMatches(el_string);
+                        match =(match.length>0)?match[0]:false;
+                        if (!match) match = obj.find_match(pattern_1,monaco_text);
                         if (!match) match = obj.find_match(pattern_2,monaco_text);                                                
                         if (match) {                             
                             var position =match.range;
@@ -112,7 +115,7 @@
                     }    
                     obj.delta_decorations = obj.editor_svg.deltaDecorations([],delta_decorations);           
                 }
-            },100);
+            },10);
             return obj;
         },
         selection_changed:false,
@@ -124,8 +127,10 @@
                 if (obj.editor_svg.getModel().findMatches('id="'+obj.method_draw_selection.selectedElement.id+'"').length > 0) el_exists=true;
                 if (obj.editor_svg.getModel().findMatches("id='"+obj.method_draw_selection.selectedElement.id+"'").length > 0) el_exists=true;
                 if (!el_exists) obj.on_canvas_change();
+                else obj.selection_changed = true;
+            }else{
+                obj.selection_changed = true;            
             }
-            obj.selection_changed = true;            
             return obj;
         },
         on_open:function(data){
