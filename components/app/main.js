@@ -45,8 +45,10 @@
             if(!obj.call_canvas_change) return false;        
             if(obj.timeout_canvas_change) clearTimeout(obj.timeout_canvas_change);
             obj.timeout_canvas_change = setTimeout(function(){
-                var svg_data = obj.parse_svg_string(methodDraw.canvas.getSvgString());                
+                if(!obj.call_canvas_change) return false;        
                 obj.call_svg_editor_change = false;
+                var svg_data = obj.parse_svg_string(methodDraw.canvas.getSvgString());                
+                
                 obj.editor_svg.setValue(svg_data.svg);
                 if(svg_data.cdata){
                     methodDraw.loadFromString(svg_data.svg);
@@ -64,6 +66,7 @@
             if(!obj.call_svg_editor_change) return false;
             if(obj.timeout_svg_editor_change) clearTimeout(obj.timeout_svg_editor_change);
             obj.timeout_svg_editor_change = setTimeout(function(){
+                if(!obj.call_svg_editor_change) return false;
                 obj.call_canvas_change = false;
                 methodDraw.loadFromString(obj.editor_svg.getValue());
                 methodDraw.updateCanvas();
@@ -71,6 +74,17 @@
             },1000);
             
             return obj;
+        },
+        on_open:function(data){
+            obj.call_svg_editor_change = obj.call_canvas_change = false;                        
+            setTimeout(function(){
+                var svg_data = obj.parse_svg_string(data);            
+                obj.editor_svg.setValue(svg_data.svg);
+                obj.editor_code.setValue(svg_data.cdata);
+                obj.editor_action(obj.editor_code,'Format Document');
+                obj.editor_action(obj.editor_svg,'Format Document');
+                obj.call_svg_editor_change = obj.call_canvas_change = true;
+            },100);            
         },
         editors_layout:function(){
             if (typeof obj.editor_svg !== 'undefined') {
@@ -83,8 +97,9 @@
         },        
         compiled:false,
         build:function(){
-            obj.on_canvas_change();
-            var temp_svg = methodDraw.canvas.getSvgString();
+            //obj.on_canvas_change();
+            //var temp_svg = methodDraw.canvas.getSvgString();
+            var temp_svg = obj.editor_svg.getValue();
             obj.compiled = [                  
                 temp_svg.substr(0,temp_svg.length-6),
                 '<script type="text/javascript"><![CDATA[',
@@ -97,6 +112,7 @@
         init_method_draw:function(){
             //methodDraw.canvas.bind('changed',obj.on_canvas_change);
             window.methodDraw.onChange = obj.on_canvas_change;
+            window.methodDraw.onOpen = obj.on_open;
             return obj;         
         },
         init_monaco:function(){

@@ -2353,7 +2353,7 @@
       // it is up to an extension mechanism (opera widget, etc) 
       // to call setCustomHandlers() which will make it do something
       var clickOpen = function(){
-        svgCanvas.open();
+        svgCanvas.open();        
       };
       var clickImport = function(){
       };
@@ -3669,6 +3669,7 @@
               reader.onloadend = function(e) {
                 loadSvgString(e.target.result);
                 updateCanvas();
+                if(typeof window.methodDraw.onOpen === 'function') window.methodDraw.onOpen(e.target.result);                
               };
               reader.readAsText(f.files[0]);
             }
