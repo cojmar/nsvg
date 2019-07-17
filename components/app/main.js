@@ -48,15 +48,16 @@
                 if(!obj.call_canvas_change) return false;        
                 obj.call_svg_editor_change = false;
                 var svg_data = obj.parse_svg_string(methodDraw.canvas.getSvgString());                
-                
                 obj.editor_svg.setValue(svg_data.svg);
+                obj.highlight_method_draw_selection();
                 if(svg_data.cdata){
                     methodDraw.loadFromString(svg_data.svg);
                     methodDraw.updateCanvas();
                     obj.editor_code.setValue(svg_data.cdata);
                     obj.editor_action(obj.editor_code,'Format Document');
                 }
-                obj.call_svg_editor_change = true;            
+                obj.call_svg_editor_change = true;  
+                
             },100)            
             return obj;
         },
@@ -75,6 +76,33 @@
             
             return obj;
         },
+        method_draw_selection:false,        
+        delta_decorations:[],
+        highlight_method_draw_selection:function(){
+            obj.delta_decorations = obj.editor_svg.deltaDecorations(obj.delta_decorations, [{ range: new monaco.Range(1,1,1,1), options : { } }]);
+            if (obj.method_draw_selection){
+                var delta_decorations = [];
+                for (var el of obj.method_draw_selection.elements){
+                    var el_string = methodDraw.canvas.svgToString(el);
+                    var matches = obj.editor_svg.model.findMatches(el_string);                
+                    if(matches[0]){
+                        var position = matches[0].range;
+                        delta_decorations.push({ range: new monaco.Range(position.startLineNumber,position.startColumn,position.endLineNumber,position.endColumn), options: { inlineClassName: 'selected_element' }});                         
+                    }
+                }
+                obj.delta_decorations = obj.editor_svg.deltaDecorations([],delta_decorations);   
+            }
+            else{
+                //obj.delta_decorations = [];
+            }
+            return obj;
+        },
+        on_select:function(data){
+            if (!obj.delta_slob) obj.delta_slob = obj.editor_svg.deltaDecorations([],[]);            
+            if (data) obj.method_draw_selection = data;    
+            obj.highlight_method_draw_selection();                  
+            return obj;
+        },
         on_open:function(data){
             obj.call_svg_editor_change = obj.call_canvas_change = false;                        
             setTimeout(function(){
@@ -85,6 +113,7 @@
                 obj.editor_action(obj.editor_svg,'Format Document');
                 obj.call_svg_editor_change = obj.call_canvas_change = true;
             },100);            
+            return obj;
         },
         editors_layout:function(){
             if (typeof obj.editor_svg !== 'undefined') {
@@ -96,9 +125,7 @@
             $('#svg_editor').css('width','100%');
         },        
         compiled:false,
-        build:function(){
-            //obj.on_canvas_change();
-            //var temp_svg = methodDraw.canvas.getSvgString();
+        build:function(){            
             var temp_svg = obj.editor_svg.getValue();
             obj.compiled = [                  
                 temp_svg.substr(0,temp_svg.length-6),
@@ -109,10 +136,10 @@
             ].join('\n');
             return obj;
         },        
-        init_method_draw:function(){
-            //methodDraw.canvas.bind('changed',obj.on_canvas_change);
+        init_method_draw:function(){            
             window.methodDraw.onChange = obj.on_canvas_change;
             window.methodDraw.onOpen = obj.on_open;
+            window.methodDraw.onSelect = obj.on_select;            
             return obj;         
         },
         init_monaco:function(){
