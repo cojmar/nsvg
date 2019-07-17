@@ -119,9 +119,9 @@ require([
     'vs/editor/editor.main',
     'app_main',
     'svgunits'
-], function($, monaco, app_main) {
-    $(methodDraw.init);
+], function($, monaco, app_main) {    
     $(function() {
+        methodDraw.init();
         app_main.init();
     });
 });

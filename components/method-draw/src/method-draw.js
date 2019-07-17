@@ -4089,8 +4089,11 @@
       
       // Note that we don't want this on Editor.ready since some extensions
       // may want to run before then (like server_opensave).
+      
       $(function() {
-        if(svgCanvas) svgCanvas.addExtension.apply(this, args);
+        setTimeout(function(){          
+          if(svgCanvas) svgCanvas.addExtension.apply(this, args);          
+        },100);        
       });
     };
 
