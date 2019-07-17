@@ -76,9 +76,10 @@
             
             return obj;
         },
-        find_match:function(pattern,my_text){
-            let re = new RegExp(pattern, 'gmi');
-            let re_match = my_text.match(re);
+        cached_patens:{},
+        find_match:function(pat_id,pattern,my_text){            
+            if(!obj.cached_patens[pat_id]) obj.cached_patens[pat_id] = new RegExp(pattern, 'gmi');
+            let re_match = my_text.match(obj.cached_patens[pat_id]);
             if(re_match){
                 re_match = re_match[0];
                 let ret =  obj.editor_svg.getModel().findMatches(re_match);
@@ -100,10 +101,12 @@
                         var pattern_2 = '(<\/?\\w*(?:(?:(?:\\s*(?:".*"|\'.*\'|[^\'"<\\s]?))?)+\\s*|\\s*)\\sid\\s*=\\s*["|\']?' + el.id +'["|\']?(?:(?:(?:\\s*(?:".*"|\'.*\'|[^\'">\\s]?))?)+\\s*|\\s*)\\w*\/?>)';                        
                         var pattern_1 = '(<g\\w?(?:(?:(?:\\s*(?:".*"|\'.*\'|[^\'"<\\s]?))?)+\\s*|\\s*)\\sid\\s*=\\s*["|\']?' + el.id +'["|\']?(?:(?:(?:\\s*(?:".*"|\'.*\'|[^\'">\\s]?))?)+\\s*|\\s*)\\w*>)[\\S\\s]+?<\/g>';
                         var el_string = methodDraw.canvas.svgToString(el);
-                        var match = obj.editor_svg.getModel().findMatches(el_string);
-                        match =(match.length>0)?match[0]:false;
-                        if (!match) match = obj.find_match(pattern_1,monaco_text);
-                        if (!match) match = obj.find_match(pattern_2,monaco_text);                                                
+                        var match = obj.editor_svg.getModel().findMatches(el_string);                        
+                        match =(match.length>0)?match[0]:false;                        
+                        
+                        if (!match) match = obj.find_match('p1_'+el.id,pattern_1,monaco_text);
+                        if (!match) match = obj.find_match('p2_'+el.id,pattern_2,monaco_text);
+                        
                         if (match) {                             
                             var position =match.range;
                             delta_decorations.push({range: new monaco.Range(position.startLineNumber,position.startColumn,position.endLineNumber,position.endColumn), options: { inlineClassName: 'selected_element' }});                                                                     
