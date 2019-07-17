@@ -103,7 +103,7 @@ require.config({
             deps: ['pathseg', 'svgdraw', 'svgtransform', 'svgmath', 'svgsanitize', 'svghistory', 'svgselect', 'svgpath', 'svgfilesaver']
         },
         svgunits: {
-            deps: ['jquery', 'ext_grid', 'ext_shapes', 'ext_eyedropper', 'contextmenu']
+            deps: ['jquery', 'ext_shapes', 'ext_eyedropper', 'contextmenu']
         },
         svgsanitize: {
             deps: ['jquery']

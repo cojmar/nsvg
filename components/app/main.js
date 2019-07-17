@@ -76,50 +76,56 @@
             
             return obj;
         },
+        find_match:function(pattern,my_text){
+            let re = new RegExp(pattern, 'gmi');
+            let re_match = my_text.match(re);
+            if(re_match){
+                re_match = re_match[0];
+                let ret =  obj.editor_svg.getModel().findMatches(re_match);
+                if (ret.length>0) return ret[0];
+            }
+            return false;
+        },
         method_draw_selection:false,        
         delta_decorations:[],
-        highlight_method_draw_selection:function(){
-            obj.delta_decorations = obj.editor_svg.deltaDecorations(obj.delta_decorations, [{ range: new monaco.Range(1,1,1,1), options : { } }]);
-            if (obj.method_draw_selection){
-                var delta_decorations = [];
-                for (var el of obj.method_draw_selection.elements){                    
-                    var el_string = methodDraw.canvas.svgToString(el);
-                    var matches = obj.editor_svg.getModel().findMatches(el_string);
-                    matches = [];                    
-                    if (matches.length === 0){                    
-
-                        var pattern = '.*(.*id="' + el.id + '".*>).*';
-                        var re = new RegExp(pattern, 'm');
-                        matches = obj.editor_svg.getModel().findMatches(re, false, true, false, false);
-                        /*
-                        console.log(re);
-                        console.log(matches); 
-                        */
-
-                    }
-                    if (matches[0]) { 
-                        var position = matches[0].range;
-                        delta_decorations.push({range: new monaco.Range(position.startLineNumber,position.startColumn,position.endLineNumber,position.endColumn), options: { inlineClassName: 'selected_element' }});                         
-                    }
+        timeout_highlight:false,
+        highlight_method_draw_selection:function(){             
+            if(obj.timeout_highlight) clearTimeout(obj.timeout_highlight);
+            obj.timeout_highlight = setTimeout(function(){
+                obj.delta_decorations = obj.editor_svg.deltaDecorations(obj.delta_decorations, [{ range: new monaco.Range(1,1,1,1), options : { } }]);
+                if (obj.method_draw_selection){
+                    var delta_decorations = [];
+                    var monaco_text = obj.editor_svg.getValue();
+                    for (var el of obj.method_draw_selection.elements){                                      
+                        var pattern_2 = '(<\/?\\w*(?:(?:(?:\\s*(?:".*"|\'.*\'|[^\'"<\\s]?))?)+\\s*|\\s*)\\sid\\s*=\\s*["|\']?' + el.id +'["|\']?(?:(?:(?:\\s*(?:".*"|\'.*\'|[^\'">\\s]?))?)+\\s*|\\s*)\\w*\/?>)';                        
+                        var pattern_1 = '(<g\\w?(?:(?:(?:\\s*(?:".*"|\'.*\'|[^\'"<\\s]?))?)+\\s*|\\s*)\\sid\\s*=\\s*["|\']?' + el.id +'["|\']?(?:(?:(?:\\s*(?:".*"|\'.*\'|[^\'">\\s]?))?)+\\s*|\\s*)\\w*>)[\\S\\s]+?<\/g>';                        
+                        var match = obj.find_match(pattern_1,monaco_text);
+                        if (!match) match = obj.find_match(pattern_2,monaco_text);                                                
+                        if (match) {                             
+                            var position =match.range;
+                            delta_decorations.push({range: new monaco.Range(position.startLineNumber,position.startColumn,position.endLineNumber,position.endColumn), options: { inlineClassName: 'selected_element' }});                                                                     
+                            if (position){
+                                //obj.editor_svg.setPosition({column: position.startColumn, lineNumber: position.startLineNumber});
+                                obj.editor_svg.revealLineInCenter(position.startLineNumber);
+                            }
+                        }                        
+                    }    
+                    obj.delta_decorations = obj.editor_svg.deltaDecorations([],delta_decorations);           
                 }
-                if (position){
-                    obj.editor_svg.setPosition({column: position.startColumn, lineNumber: position.startLineNumber});
-                    obj.editor_svg.revealLineInCenter(position.startLineNumber);
-                }
-                obj.delta_decorations = obj.editor_svg.deltaDecorations([],delta_decorations);   
-            }            
+            },100);
             return obj;
         },
+        selection_changed:false,
         on_select:function(data){
             if (!obj.delta_slob) obj.delta_slob = obj.editor_svg.deltaDecorations([],[]);            
             if (data) obj.method_draw_selection = data;    
             if (obj.method_draw_selection && obj.method_draw_selection.selectedElement){ 
                 var el_exists = false;               
-                if (obj.editor_svg.model.findMatches('id="'+obj.method_draw_selection.selectedElement.id+'"').length > 0) el_exists=true;
-                if (obj.editor_svg.model.findMatches("id='"+obj.method_draw_selection.selectedElement.id+"'").length > 0) el_exists=true;
+                if (obj.editor_svg.getModel().findMatches('id="'+obj.method_draw_selection.selectedElement.id+'"').length > 0) el_exists=true;
+                if (obj.editor_svg.getModel().findMatches("id='"+obj.method_draw_selection.selectedElement.id+"'").length > 0) el_exists=true;
                 if (!el_exists) obj.on_canvas_change();
             }
-            obj.highlight_method_draw_selection();
+            obj.selection_changed = true;            
             return obj;
         },
         on_open:function(data){
@@ -132,6 +138,20 @@
                 obj.editor_action(obj.editor_svg,'Format Document');
                 obj.call_svg_editor_change = obj.call_canvas_change = true;
             },100);            
+            return obj;
+        },
+        mouse_down:false,
+        init_dom_mouse(){
+            document.addEventListener('mousedown', e => {
+                obj.mouse_down = true;
+            });
+            document.addEventListener('mouseup', e => {
+                obj.mouse_down = false;
+                if (obj.selection_changed){
+                    obj.highlight_method_draw_selection();
+                    obj.selection_changed = false;
+                }                
+            });
             return obj;
         },
         editors_layout:function(){
@@ -255,7 +275,7 @@
                 iframe = iframe.contentWindow || ( iframe.contentDocument.document || iframe.contentDocument);
                 iframe.document.open();
                 iframe.document.write('<center>'+obj.compiled+'</center>');
-                iframe.document.write('<br><div style="color:#cccccc;">COMPILED<hr style="border: 1px solid #cccccc;"><textarea readonly="readonly" style="color:#cccccc;width:100%;height:100%;border:none;background:transparent;outline: none;resize:none;" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">'+obj.compiled+'</textarea>');
+                iframe.document.write('<br><div style="color:#cccccc;"><hr style="border: 1px solid #cccccc;"><xmp readonly="readonly" style="color:#cccccc;width:100%;height:100%;border:none;background:transparent;outline: none;resize:none;" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">'+obj.compiled+'</xmp>');
                 iframe.document.close();  
                 obj.editors_layout();  
             });            
@@ -273,6 +293,7 @@
                 if(obj.editor_state==='normal')obj.restore_editor();                
             }
             obj.editors_layout();
+            return obj;
         },
         editor_state:'normal',
         maximize_editor:function(){
@@ -332,12 +353,13 @@
             .init_tabs()
             .init_tab_bar()
             .init_method_draw()
-            .on_canvas_change();            
+            .on_canvas_change()
+            .init_dom_mouse()
+            .show_tab('editor_svg');            
             $('#loader').slideUp(500,function(){                
                 $('#main_container').slideDown(350,function(){
                     obj.editor_height =400;
-                    obj.restore_editor();   
-                    obj.show_tab('editor_svg');
+                    obj.restore_editor();                       
                 });                     
             });
             
