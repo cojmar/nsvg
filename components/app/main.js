@@ -66,11 +66,16 @@
         on_svg_editor_change:function(){
             if(!obj.call_svg_editor_change) return false;
             if(obj.timeout_svg_editor_change) clearTimeout(obj.timeout_svg_editor_change);
+            var cur_selection = obj.method_draw_selection;
             obj.timeout_svg_editor_change = setTimeout(function(){
                 if(!obj.call_svg_editor_change) return false;
                 obj.call_canvas_change = false;
                 methodDraw.loadFromString(obj.editor_svg.getValue());
                 methodDraw.updateCanvas();
+                setTimeout(function(){                   
+                    //methodDraw.canvas.runExtensions("selectedChanged", cur_selection);
+                },100);
+                
                 obj.call_canvas_change = true;
             },100);
             
@@ -78,7 +83,7 @@
         },
         cached_patens:{},
         find_match:function(pat_id,pattern,my_text){            
-            if(!obj.cached_patens[pat_id]) obj.cached_patens[pat_id] = new RegExp(pattern, 'gmi');
+            if(!obj.cached_patens[pat_id]) obj.cached_patens[pat_id] = new RegExp(pattern, 'mi');
             let re_match = my_text.match(obj.cached_patens[pat_id]);
             if(re_match){
                 re_match = re_match[0];
@@ -103,7 +108,7 @@
                         var el_string = methodDraw.canvas.svgToString(el);
                         var match = obj.editor_svg.getModel().findMatches(el_string);                        
                         match =(match.length>0)?match[0]:false;                        
-                        
+                        //match = false;
                         if (!match) match = obj.find_match('p1_'+el.id,pattern_1,monaco_text);
                         if (!match) match = obj.find_match('p2_'+el.id,pattern_2,monaco_text);
                         
@@ -118,7 +123,7 @@
                     }    
                     obj.delta_decorations = obj.editor_svg.deltaDecorations([],delta_decorations);           
                 }
-            },10);
+            },100);
             return obj;
         },
         selection_changed:false,
