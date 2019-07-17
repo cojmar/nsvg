@@ -82,12 +82,24 @@
             obj.delta_decorations = obj.editor_svg.deltaDecorations(obj.delta_decorations, [{ range: new monaco.Range(1,1,1,1), options : { } }]);
             if (obj.method_draw_selection){
                 var delta_decorations = [];
-                for (var el of obj.method_draw_selection.elements){
+                for (var el of obj.method_draw_selection.elements){                    
                     var el_string = methodDraw.canvas.svgToString(el);
-                    var matches = obj.editor_svg.model.findMatches(el_string);                
-                    if(matches[0]){
-                        var position = matches[0].range;                        
-                        delta_decorations.push({ range: new monaco.Range(position.startLineNumber,position.startColumn,position.endLineNumber,position.endColumn), options: { inlineClassName: 'selected_element' }});                         
+                    var matches = obj.editor_svg.getModel().findMatches(el_string);
+                    matches = [];                    
+                    if (matches.length === 0){                    
+
+                        var pattern = '.*(.*id="' + el.id + '".*>).*';
+                        var re = new RegExp(pattern, 'm');
+                        matches = obj.editor_svg.getModel().findMatches(re, false, true, false, false);
+                        /*
+                        console.log(re);
+                        console.log(matches); 
+                        */
+
+                    }
+                    if (matches[0]) { 
+                        var position = matches[0].range;
+                        delta_decorations.push({range: new monaco.Range(position.startLineNumber,position.startColumn,position.endLineNumber,position.endColumn), options: { inlineClassName: 'selected_element' }});                         
                     }
                 }
                 if (position){
@@ -325,8 +337,8 @@
                 $('#main_container').slideDown(350,function(){
                     obj.editor_height =400;
                     obj.restore_editor();   
-                });
-                     
+                    obj.show_tab('editor_svg');
+                });                     
             });
             
         }
